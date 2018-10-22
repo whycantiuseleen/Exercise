@@ -22,9 +22,7 @@ class MerkleTree():
         
         while level < len(tree)-1:
             if level == 0:
-                print (len(tree[level]))
                 if len(tree[level])%2 != 0:
-                    print ("lastval: ",tree[level][-1])
                     tree[level].append(tree[level][-1])
 
                 if currentIndex == 0:
@@ -63,11 +61,11 @@ class MerkleTree():
             
             level +=1 
 
-        print ("\nMerkle path: ",proof)
+        # print ("\nMerkle path: ",proof)
         return proof
 
     def verify_proof(hashedtxn, proof, root):   
-        print ('\nVerifying Transaction ') 
+        # print ('\nVerifying Transaction ') 
       
         if len(proof) == 0:
             return hashedtxn == root
@@ -145,9 +143,9 @@ class MerkleTree():
                 nodes_remaining = len(current_level)
                 tree.append(current_level)
         
-        print ("Merkle tree generated: \n")
-        for i in tree:
-            print (i)
+        # print ("Merkle tree generated: \n")
+        # for i in tree:
+        #     print (i)
 
         
         self.tree = tree

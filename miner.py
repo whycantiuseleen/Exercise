@@ -61,8 +61,9 @@ class Miner:
             amt_onhand = addrbk_checked.get(sender) 
             
             if sender not in accountlist: 
-                print (str(sender) + " not in account list, transaction rejected")
-            
+                # print (str(sender) + " not in account list, transaction rejected")
+                continue
+
             else: 
                 # print ('Amount on hand in addrbk', amt_onhand)
                 if amt_onhand > cost:

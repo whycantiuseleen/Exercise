@@ -51,8 +51,8 @@ class SPVClient:
             if flag == True:
                 print ("\nTransaction is verified and found in the blockchain")
                 break
-            else: 
-                print ("\nTransaction not found in blockchain")
+            # else: 
+            #     print ("\nTransaction not found in blockchain")
         
         return flag
             
