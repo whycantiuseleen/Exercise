@@ -5,7 +5,54 @@ class MerkleTree():
         self.transactionlist = transactionlist
         self.tree = None
         self.root = None
+    
+    def get_root(self):
+        root = self.root
+        # print ("Root", root)
+        return root
 
+    def get_proof(self, hashedtxn):
+        # Get index of transaction/2 round down.
+        # Result is the index of the hash value to append inside
+        proof = []
+        level = 0
+        tree = self.tree
+        txnIndex = self.transactionlist.index(hashedtxn)
+            
+        while level < len(tree)-1:
+            if level == 0:
+                if txnIndex == 0:
+                    hashvalue = tree[level][1]
+                elif txnIndex%2 != 0:
+                    # ODD Index - return Left Child
+                    hashvalue = tree[level][txnIndex-1]
+                    proof.append(hashvalue)
+                else:
+                    # EVEN Index - return Right Child
+                    hashvalue = tree[level][txnIndex+1]
+                    proof.append(hashvalue)
+
+                level += 1
+            else:
+                hashIndex = int(txnIndex/2)
+                hashvalue = tree[level][hashIndex]
+                proof.append(hashvalue)
+
+                # Set new index
+                txnIndex = hashIndex
+                level +=1 
+
+        print ("Merkle path: ",proof)
+        return proof
+
+    def verify_proof(self, hashedtxn, proof, root):       
+        if len(proof) == 0:
+            return hashedtxn == root
+        # else:
+        #     for hashvalue in proof:
+                
+
+        return None
     def build(self):
         leaf_hashes = []
         tree = []
@@ -66,27 +113,3 @@ class MerkleTree():
         self.tree = tree
         self.root = tree[-1][0]
         return tree
-
-    def get_root(self):
-        root = self.root
-        # print ("Root", root)
-        return root
-
-    def get_proof(self, txn):
-        # first need to know if txn is left or right
-        # check if node is left or right
-        proof = []
-        tree = self.tree
-        level = 0
-        
-
-        return proof
-
-    def verify_proof(self, proof, hashentry, root):       
-        if len(proof) == 0:
-            return hashentry == root
-        # else:
-        #     for hashvalue in proof:
-                
-
-        return None

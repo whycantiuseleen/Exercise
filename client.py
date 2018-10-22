@@ -7,9 +7,7 @@ import hashlib,json
 
 
 class SPVClient:
-    def __init__(self,fullnode):
-        self.fullnode = fullnode
-
+    def __init__(self):
         # create key pair/generate wallet for client
         self.privatekey = SigningKey.generate(curve=NIST192p)
         self.publickey = self.privatekey.get_verifying_key()
@@ -25,32 +23,35 @@ class SPVClient:
         
         return signedTxn 
 
-    def retrieve_block_headers(self):
+    def retrieve_block_headers(self, fullnode):
         blockheaders = []
         headers = {}
-        provider = self.fullnode
-        chain = self.fullnode.blockchain.blockchain
+        provider = fullnode
+        chain = provider.blockchain.blockchain
         for block in chain:
-            
-            print ("blocks: ",block)
             headers = block[0].get_header()
             blockheaders.append(headers)
 
         print("\nBlockheaders: ",blockheaders)
         return blockheaders
           
-    def receive_transaction(self, txn):
+    def receive_transaction(self, txn, minernode):
         # Receive blockheader from fullnode
         # Receive merkle path
         # Check with fullnode on which block contains transaction
-        hashedTxn = hashlib.sha512(txn.encode('utf-u')).hexdigest()        
-        blockheaders = self.retrieve_block_headers()
+        hashedTxn = hashlib.sha512(txn.encode('utf-8')).hexdigest()        
+        blockheaders = self.retrieve_block_headers(minernode)
         
-        for hashedheader in blockheaders:
-            if MerkleTree.verify_proof(hashedTxn,hashedheader):
-                print ("Transaction is verified and found in the blockchain")
-       
-        return None    
+        proof = minernode.get_merklepath(txn)
+        # Verify with merkleroot in header
+        flag = False
+        while flag:
+            for hashedheader in blockheaders:
+                merkleroot = hashedheader.get('merkleroot')
+                flag = MerkleTree.verify_proof(hashedTxn, proof, merkleroot)
+
+        print ("\nTransaction is verified and found in the blockchain")
+        return True
             
 
         

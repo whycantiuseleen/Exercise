@@ -1,6 +1,7 @@
 from blockchain import Blockchain, Block
 from transaction import Transaction
 from datetime import datetime
+from merkletree import MerkleTree
 from ecdsa import SigningKey, NIST192p
 import json
 
@@ -83,7 +84,7 @@ class Miner:
         
         print ("\nMining Transaction, current number of block is: "+ str(len(currentchain.blockchain)))
         # Create block object
-        newblock = Block(transactionpool)
+        newblock = Block(verifiedpool)
         currentchain.set_blockheader(newblock)
 
         proof = currentchain.proof_of_work(newblock)
@@ -103,3 +104,18 @@ class Miner:
         else:
             print ('\nMiner '+str(senderkey)+" does not have sufficient coins to send a transaction")
         return None 
+
+    def get_merklepath(self, txn):
+        # Get Tree information from minernode
+        proof = None
+        for block in self.blockchain.blockchain:
+            if txn in block[0].txnlist:
+                merkletree = MerkleTree(block[0].txnlist)
+                merkletree.build()
+                arrayTree = merkletree.tree
+                print ("\nMerkletree: ",arrayTree)
+                
+                # Get merkle path
+                proof = merkletree.get_proof(txn)
+
+        return proof

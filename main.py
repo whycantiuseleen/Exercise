@@ -28,7 +28,8 @@ def test():
     vk2 = sk2.get_verifying_key()
 
     txn1 = Transaction(vk.to_string().hex(),'receiverkey1', 100).to_json()
-    transactionlist = [txn1,txn1]
+    txn2 = Transaction(vk.to_string().hex(),'client1',100).to_json()
+    transactionlist = [txn1,txn2]
 
     ##Create Block with transaction
     block = Block(transactionlist)
@@ -61,8 +62,8 @@ def test():
     # chain.add(m2.mine(chain.resolve()),m2.publickey.to_string().hex())
     # print (chain.blockchain)
     
-    spvclient = SPVClient(m1)
-    blockheaders = spvclient.retrieve_block_headers()
+    spvclient = SPVClient()
+    checktransaction = spvclient.receive_transaction(txn2,m1)
 
 if __name__ == '__main__':
     test() 

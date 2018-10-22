@@ -148,7 +148,7 @@ class Block:
     def build_tree(self):
         mt = MerkleTree(self.txnlist)
         buildtree= mt.build()
-        merkleroot = mt.root
+        merkleroot = mt.get_root()
         self.merkle_root = merkleroot
         print ('merkle tree: ', buildtree)
         return merkleroot
