@@ -28,37 +28,41 @@ def test():
     vk2 = sk2.get_verifying_key()
 
     txn1 = Transaction(vk.to_string().hex(),'receiverkey1', 100).to_json()
-    transactionlist = [txn1]
+    transactionlist = [txn1,txn1]
 
     ##Create Block with transaction
     block = Block(transactionlist)
    
     chain = Blockchain()
-    chain.set_blockheader(block)
 
     ##Populate blockchain with blocks
     for i in range(2):
         chain.set_blockheader(block)
         chain.add(block,1)
-
-    txn4 = Transaction('receiverkey1','receiverkey3', 100).to_json()
-    txn5 = Transaction('receiverkey3','receiverkey1', 100).to_json()
-   
-    chain.transactionpool.append(txn4)
-    chain.transactionpool.append(txn5)
-
-    ## Miner Test
-    m1 = Miner(chain)
-    block4 = m1.mine()
-    chain.add(block4,m1.publickey.to_string().hex())
-    block5 = m1.mine()
-    chain.add(block5,m1.publickey.to_string().hex())
-
-    m2 = Miner(chain)
-    block6 = m2.mine()
-    block6_2 = m1.mine()
-    chain.fork(block6,block6_2,m1.publickey.to_string().hex(),m2.publickey.to_string().hex())
-    m1.mine()
     
+    # txn4 = Transaction('receiverkey1','receiverkey3', 100).to_json()
+    # txn5 = Transaction('receiverkey3','receiverkey1', 100).to_json()
+   
+    # chain.transactionpool.append(txn4)
+    # chain.transactionpool.append(txn5)
+
+    # Miner Test
+    m1 = Miner(chain)
+    # block4 = m1.mine(chain)
+    # chain.add(block4,m1.publickey.to_string().hex())
+    # block5 = m1.mine(chain)
+    # chain.add(block5,m1.publickey.to_string().hex())
+ 
+    # m2 = Miner(chain)
+    # block6 = m2.mine(chain)
+    # block6_2 = m1.mine(chain)
+    # chain.fork(block6,block6_2,m1.publickey.to_string().hex(),m2.publickey.to_string().hex())
+   
+    # chain.add(m2.mine(chain.resolve()),m2.publickey.to_string().hex())
+    # print (chain.blockchain)
+    
+    spvclient = SPVClient(m1)
+    blockheaders = spvclient.retrieve_block_headers()
+
 if __name__ == '__main__':
-    test()
+    test() 

@@ -1,16 +1,16 @@
-import hashlib, json
-import time
+import hashlib, json,time,random
 from datetime import datetime
 from ecdsa import SigningKey
 from merkletree import MerkleTree
 from transaction import Transaction
-import random
+from collections import OrderedDict
 
 class Blockchain:
     def __init__(self):
         self.blockchain = []   
         self.transactionpool = []
-      
+        self.currentindex = 0
+        
         #Genesis
         self.genesis_created = False
         self.genesis = self.create_first_block()
@@ -26,7 +26,7 @@ class Blockchain:
         lastblock = self.blockchain[-1] 
     
         # Set header values
-        block.index = len(self.blockchain) + 1
+        block.index  = len(self.blockchain) + 1
         block.pre_hash = lastblock[0].hash
         block.hash = block.hash_data()
         return block
@@ -47,9 +47,18 @@ class Blockchain:
         return chain
 
     def fork(self,block1,block2,m1pk,m2pk):
-        chain = self.blockchain
-        block1.index = block2.index
-        chain.append([block1,block2])
+        # Forcing a fork
+        mainchain = self.blockchain
+        currentindex = block1.index
+
+        newchain1 = Blockchain()
+        newchain1.genesis = block1
+
+        newchain2 = Blockchain()
+        block2.index = currentindex
+        newchain2.genesis = block2    
+
+        mainchain.append([newchain1,newchain2])
         print ("Forking occured at Block " + str(block1.index))
         self.transactionpool = []
         
@@ -58,11 +67,14 @@ class Blockchain:
         
         self.transactionpool.append(rewardtxn1)
         self.transactionpool.append(rewardtxn2)
+        newchain1.transactionpool = self.transactionpool
+        newchain2.transactionpool = self.transactionpool
+
         print ("Rewarded Miner "+str(m1pk) + " with 100 SUTDcoin\n")
         print ("Rewarded Miner "+str(m2pk) + " with 100 SUTDcoin\n")
-        print (chain)
+        print (mainchain)
         
-        return chain
+        return mainchain
         
 
     def create_first_block(self):
@@ -75,7 +87,7 @@ class Blockchain:
             self.blockchain.append([self.genesis])
             self.genesis_created = True
             current_index = 1
-            
+            self.currentindex = current_index
             print ("Genesis Block with index " + str(current_index) +" added at " + str(datetime.utcnow()) + " to the chain \n")
         
         return self.genesis
@@ -97,17 +109,18 @@ class Blockchain:
         for tempblock in self.blockchain:
             #check for where the fork is
             if len(tempblock) != 1:
-                print ("Forking detected")
-                for forkchain in range(0,len(tempblock)-1):
+                print ("Forking detected",tempblock)
+                for forkchain in tempblock:
                     #check which chain is longer
+                    print (forkchain)
                     current_longestchain = []
-                    if len(forkchain) > len(current_longestchain):
-                        current_longestchain = forkchain
+                    if len(forkchain.blockchain) > len(current_longestchain):
+                        current_longestchain = forkchain 
                     print (current_longestchain)
+                    # self.blockchain[-1] = [current_longestchain]
+                    # print (self.blockchain)
                     return current_longestchain
-
-
-
+          
 class Block:
     def __init__(self, txnlist):
         self.txnlist = txnlist
@@ -137,4 +150,15 @@ class Block:
         buildtree= mt.build()
         merkleroot = mt.root
         self.merkle_root = merkleroot
+        print ('merkle tree: ', buildtree)
         return merkleroot
+
+    def get_header(self):
+        headerdict = {
+            "index": self.index,
+            "timestamp": self.timestamp,
+            "prehash": self.pre_hash,
+            "merkleroot": self.merkle_root,
+            "proof": self.proof
+        }
+        return headerdict

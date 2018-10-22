@@ -19,8 +19,9 @@ client1 = SPVClient(blockchain)
 # Client: Made Txn, Request Txn History (blockchain and header), Get Txn + Proof
 
 @app.route('/mine',methods=['GET'])
-def mine_transaction():
+def mine_transaction(miner):
     # Miner send msg to network saying that the miner is mining a new block
+    miner.mine()
     return "I am mining a new Block"
 
 @app.route('/transaction/new', methods=['POST'])

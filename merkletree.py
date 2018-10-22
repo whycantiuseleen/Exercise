@@ -62,17 +62,31 @@ class MerkleTree():
         # for i in tree:
         #     print (i)
 
+        
         self.tree = tree
         self.root = tree[-1][0]
         return tree
-
-    def get_proof():
-        return None
 
     def get_root(self):
         root = self.root
         # print ("Root", root)
         return root
 
-    def verify_proof(entry, proof, root):
+    def get_proof(self, txn):
+        # first need to know if txn is left or right
+        # check if node is left or right
+        proof = []
+        tree = self.tree
+        level = 0
+        
+
+        return proof
+
+    def verify_proof(self, proof, hashentry, root):       
+        if len(proof) == 0:
+            return hashentry == root
+        # else:
+        #     for hashvalue in proof:
+                
+
         return None

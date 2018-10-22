@@ -1,59 +1,56 @@
 from ecdsa import SigningKey, NIST192p
 from transaction import Transaction
+from merkletree import MerkleTree
+from collections import OrderedDict
+from blockchain import Blockchain,Block
+import hashlib,json
 
 
 class SPVClient:
-    def __init__(self,blockchain,cid):
-        self.blockchain = blockchain
+    def __init__(self,fullnode):
+        self.fullnode = fullnode
 
         # create key pair/generate wallet for client
         self.privatekey = SigningKey.generate(curve=NIST192p)
         self.publickey = self.privatekey.get_verifying_key()
+     
+    def new_txn(self, recipient, amount):
+        # Make txn, don't need to check if the balance is correct cos miner will check when they mine
+        senderkey = self.publickey.to_string().hex()
+       
+        newTxn = Transaction(senderkey, recipient, amount)
+        signedTxn = newTxn.sign(newTxn, self.privatekey.to_string())
+        self.blockchain.transactionpool.append(newTxn.to_json)
+        print ("\nClient "+str(senderkey)+" Added Transaction to transaction pool \n", self.blockchain.transactionpool)
         
-        self.cid = cid
-        self.addr = self.getAddrBalance()
-        
-    def getAddrBalance(self):
-        addr = {}
-        accountlist = list(addr.keys())
-        for block in self.blockchain.blockchain:
-            for transaction in block.txnlist:
-                data = json.loads(transaction)
-               
-                if data['sender'] not in accountlist:
-                    accountlist.append(data['sender'])
-                    addr.update({str(data['sender']):data['amount']})
-                elif data['receiver'] not in accountlist:
-                    accountlist.append(data['receiver'])
-                    addr.update({str(data['receiver']):data['amount']})
-                else:
-                    balance_tominus = addr.get(data['sender']) - data['amount']
-                    addr.update({str(data['sender']):balance_tominus})
-                    balance_toadd = addr.get(data['receiver']) + data['amount']
-                    addr.update({str(data['receiver']):balance_toadd}) 
-
-        self.addr = addr
-        return self.addr
- 
-    def new_txn(self,recipient, amount, comment):
-        # send signed transactions
-        if self.balance > 0:
-            senderkey = self.publickey
-            newTxn = Transaction(senderkey.to_string().hex(), recipient, amount,comment)
-            toJson = newTxn.to_json() 
-            signed = newTxn.sign(toJson, sk.to_string())
-            self.blockchain.transactionpool.append(newTxn.to_json())
-            print ("\nClient "+str(self.cid)+" Added Transaction to transaction pool \n", self.blockchain.transactionpool)
-            return self.blockchain.transactionpool
-        else:
-            print ("\nClient "+str(self.cid)+" does not have enough coins to make a transaction")
-            return self.blockchain.transactionpool
+        return signedTxn 
 
     def retrieve_block_headers(self):
         blockheaders = []
-        for block in self.blockchain.blockchain:
-            blockheaders.append(block.hash)
-        
+        headers = {}
+        provider = self.fullnode
+        chain = self.fullnode.blockchain.blockchain
+        for block in chain:
+            
+            print ("blocks: ",block)
+            headers = block[0].get_header()
+            blockheaders.append(headers)
+
         print("\nBlockheaders: ",blockheaders)
         return blockheaders
           
+    def receive_transaction(self, txn):
+        # Receive blockheader from fullnode
+        # Receive merkle path
+        # Check with fullnode on which block contains transaction
+        hashedTxn = hashlib.sha512(txn.encode('utf-u')).hexdigest()        
+        blockheaders = self.retrieve_block_headers()
+        
+        for hashedheader in blockheaders:
+            if MerkleTree.verify_proof(hashedTxn,hashedheader):
+                print ("Transaction is verified and found in the blockchain")
+       
+        return None    
+            
+
+        

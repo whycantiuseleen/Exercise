@@ -7,19 +7,18 @@ import json
 class Miner:
     def __init__(self, blockchain):
         self.blockchain = blockchain
-        self.newblock = None
-        
-        #wallet
+    
+        # wallet
         self.privatekey = SigningKey.generate(curve=NIST192p)
         self.publickey = self.privatekey.get_verifying_key()
 
-        #Address book of txn
+        # Address book of txn
         self.addr = {}
        
-    def getAddrBalance(self):
+    def getAddrBalance(self,chain):
         addr = {}
         accountlist = list(addr.keys())
-        for block in self.blockchain.blockchain:
+        for block in chain.blockchain:
             for transaction in block[0].txnlist:
                 data = json.loads(transaction)
                 if data['sender'] in accountlist:
@@ -69,17 +68,15 @@ class Miner:
                     balance = amt_onhand - cost
                     addrbk_checked.update({pool_data['sender']:balance})
                     verifiedpool.append(transaction)
-                    print ("Transaction is valid\n")
-                else:
-                    print ("Transaction is invalid\n")
+                    # print ("Transaction is valid\n")
+                
 
         return verifiedpool
 
-    def mine(self):
-        self.getAddrBalance()
+    def mine(self, currentchain):
+        self.getAddrBalance(currentchain)
 
         # Blockchain obj
-        currentchain = self.blockchain
         transactionpool = currentchain.transactionpool
         # Check Transactions
         verifiedpool = self.check_transactions(transactionpool)
@@ -94,14 +91,15 @@ class Miner:
         return newblock
 
 
-    def new_txn(self, recipient, amount, comment):
-        if self.balance > 0:
-            senderkey = self.publickey
-            newTxn = Transaction(senderkey.to_string().hex(), recipient, amount,comment)
+    def new_txn(self, recipient, amount):
+        self.getAddrBalance(self.blockchain)
+        senderkey = self.publickey.to_string().hex()
+        balance = self.addr.get(senderkey)
+        if balance > 0:
+            newTxn = Transaction(senderkey, recipient, amount)
             signedTxn = newTxn.sign(newTxn, self.privatekey.to_string())
             self.blockchain.transactionpool.append(newTxn.to_json)
-            
-            print ("\nMiner "+str(self.publickey.to_string().hex())+" Added Transaction to transaction pool \n", self.blockchain.transactionpool)
+            print ("\nMiner "+str(senderkey)+" Added Transaction to transaction pool \n", self.blockchain.transactionpool)
         else:
-            print ('\nMiner '+str(self.publickey.to_string().hex())+" does not have any coin to send a transaction")
-        return None
+            print ('\nMiner '+str(senderkey)+" does not have sufficient coins to send a transaction")
+        return None 
