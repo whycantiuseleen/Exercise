@@ -87,6 +87,7 @@ class Blockchain:
             self.blockchain.append([self.genesis])
             self.genesis_created = True
             current_index = 1
+            self.genesis.index = current_index
             self.currentindex = current_index
             print ("Genesis Block with index " + str(current_index) +" added at " + str(datetime.utcnow()) + " to the chain \n")
         

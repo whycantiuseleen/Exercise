@@ -23,35 +23,38 @@ class SPVClient:
         
         return signedTxn 
 
-    def retrieve_block_headers(self, fullnode):
+    def retrieve_block_headers(self, provider):
         blockheaders = []
         headers = {}
-        provider = fullnode
         chain = provider.blockchain.blockchain
         for block in chain:
             headers = block[0].get_header()
             blockheaders.append(headers)
 
-        print("\nBlockheaders: ",blockheaders)
+        # print("\nBlockheaders: ",blockheaders)
         return blockheaders
           
     def receive_transaction(self, txn, minernode):
         # Receive blockheader from fullnode
         # Receive merkle path
         # Check with fullnode on which block contains transaction
-        hashedTxn = hashlib.sha512(txn.encode('utf-8')).hexdigest()        
+        hashedTxn = hashlib.sha512(txn.encode('utf-8')).hexdigest()    
         blockheaders = self.retrieve_block_headers(minernode)
-        
+        # print ("Tochecktxn: ",hashedTxn,'\n')
         proof = minernode.get_merklepath(txn)
-        # Verify with merkleroot in header
-        flag = False
-        while flag:
-            for hashedheader in blockheaders:
-                merkleroot = hashedheader.get('merkleroot')
-                flag = MerkleTree.verify_proof(hashedTxn, proof, merkleroot)
-
-        print ("\nTransaction is verified and found in the blockchain")
-        return True
+        # Verify whether there is a merkleroot that corresponds in header
+        flag = None
+        for hashedheader in blockheaders:
+            merkleroot = hashedheader.get('merkleroot')
+            flag = MerkleTree.verify_proof(hashedTxn, proof, merkleroot)
+        
+            if flag == True:
+                print ("\nTransaction is verified and found in the blockchain")
+                break
+            else: 
+                print ("\nTransaction not found in blockchain")
+        
+        return flag
             
 
         

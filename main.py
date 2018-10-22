@@ -29,17 +29,23 @@ def test():
 
     txn1 = Transaction(vk.to_string().hex(),'receiverkey1', 100).to_json()
     txn2 = Transaction(vk.to_string().hex(),'client1',100).to_json()
-    transactionlist = [txn1,txn2]
+    txn3 = Transaction(vk2.to_string().hex(),'client3',100).to_json()
+    txn4 = Transaction(vk2.to_string().hex(),'client4',100).to_json()
+    transactionlist = [txn1,txn2,txn3]
 
     ##Create Block with transaction
     block = Block(transactionlist)
-   
+    block2 = Block([txn4])
     chain = Blockchain()
+    chain.set_blockheader(block)
+    chain.add(block,1)
+    chain.set_blockheader(block2)
+    chain.add(block2,2)
 
     ##Populate blockchain with blocks
-    for i in range(2):
-        chain.set_blockheader(block)
-        chain.add(block,1)
+    # for i in range(2):
+    #     chain.set_blockheader(block)
+    #     chain.add(block,1)
     
     # txn4 = Transaction('receiverkey1','receiverkey3', 100).to_json()
     # txn5 = Transaction('receiverkey3','receiverkey1', 100).to_json()

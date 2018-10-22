@@ -14,45 +14,75 @@ class MerkleTree():
     def get_proof(self, hashedtxn):
         # Get index of transaction/2 round down.
         # Result is the index of the hash value to append inside
+        # Only works for binary tree
         proof = []
         level = 0
         tree = self.tree
-        txnIndex = self.transactionlist.index(hashedtxn)
-            
+        currentIndex = self.transactionlist.index(hashedtxn)
+        
         while level < len(tree)-1:
             if level == 0:
-                if txnIndex == 0:
+                if currentIndex == 0:
                     hashvalue = tree[level][1]
-                elif txnIndex%2 != 0:
+                    proof.append({'right':hashvalue})
+                elif currentIndex%2 != 0:
                     # ODD Index - return Left Child
-                    hashvalue = tree[level][txnIndex-1]
-                    proof.append(hashvalue)
+                    hashvalue = tree[level][currentIndex-1]
+                    proof.append({'left':hashvalue})
                 else:
                     # EVEN Index - return Right Child
-                    hashvalue = tree[level][txnIndex+1]
-                    proof.append(hashvalue)
+                    hashvalue = tree[level][currentIndex+1]
+                    proof.append({'right':hashvalue})
+                # print ("Hashvalueobtained: ",hashvalue)
 
-                level += 1
             else:
-                hashIndex = int(txnIndex/2)
-                hashvalue = tree[level][hashIndex]
-                proof.append(hashvalue)
-
+                hashIndex = int(currentIndex/2)
+                
+                if hashIndex == 0:
+                    hashvalue = tree[level][1]
+                    proof.append({'right':hashvalue})
+                elif hashIndex%2 != 0:
+                    # ODD index
+                    hashvalue = tree[level][hashIndex-1]
+                    proof.append({'left':hashvalue})
+                else:          
+                    # EVEN index
+                    hashvalue = tree[level][hashIndex+1]
+                    proof.append({'right':hashvalue})
+                # print ("Hashvalueobtained2: ",hashvalue)
                 # Set new index
-                txnIndex = hashIndex
-                level +=1 
+                currentIndex = hashIndex
+            
+            level +=1 
 
-        print ("Merkle path: ",proof)
+        print ("\nMerkle path: ",proof)
         return proof
 
-    def verify_proof(self, hashedtxn, proof, root):       
+    def verify_proof(hashedtxn, proof, root):   
+        print ('\nVerifying Transaction ') 
+      
         if len(proof) == 0:
             return hashedtxn == root
-        # else:
-        #     for hashvalue in proof:
-                
+        else:
+            hashedData = hashedtxn
+            count = 0
+            for dictproof in proof:
+                count += 1
+                # print ("Count: ",count)
+                # print ("Hasheddata: ",hashedData)
+                position = list(dictproof.keys())
+                data = list(dictproof.values())
+                # print ("POSITION, DATA: ",position[0],data[0])
+                if position[0] == 'left':
+                    combined_tohash = str(data[0])+str(hashedData)
+                    hashedData = hashlib.sha512(combined_tohash.encode('utf-8')).hexdigest()
+                    
+                else:                
+                    combined_tohash = str(hashedData)+str(data[0])
+                    hashedData = hashlib.sha512(combined_tohash.encode('utf-8')).hexdigest()
+        
+        return root == hashedData
 
-        return None
     def build(self):
         leaf_hashes = []
         tree = []
@@ -97,17 +127,19 @@ class MerkleTree():
                     #print ("combined" , combined_tohash)
                     new_hash = hashlib.sha512(combined_tohash.encode('utf-8')).hexdigest()
                     next_level.append(new_hash)
-
+                    
                 lastnode_tohash = str(current_level[-1]) + str(current_level[-1])
                 lastnode_hash = hashlib.sha512(lastnode_tohash.encode('utf-8')).hexdigest()
+                
                 next_level.append(lastnode_hash)
+                
                 current_level = next_level
                 nodes_remaining = len(current_level)
                 tree.append(current_level)
         
-        # print ("Merkle tree generated: \n")
-        # for i in tree:
-        #     print (i)
+        print ("Merkle tree generated: \n")
+        for i in tree:
+            print (i)
 
         
         self.tree = tree

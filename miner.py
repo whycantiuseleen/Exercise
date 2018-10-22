@@ -113,7 +113,6 @@ class Miner:
                 merkletree = MerkleTree(block[0].txnlist)
                 merkletree.build()
                 arrayTree = merkletree.tree
-                print ("\nMerkletree: ",arrayTree)
                 
                 # Get merkle path
                 proof = merkletree.get_proof(txn)
