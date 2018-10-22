@@ -151,7 +151,7 @@ class Block:
         buildtree= mt.build()
         merkleroot = mt.get_root()
         self.merkle_root = merkleroot
-        print ('merkle tree: ', buildtree)
+       
         return merkleroot
 
     def get_header(self):

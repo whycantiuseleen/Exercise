@@ -31,7 +31,7 @@ def test():
     txn2 = Transaction(vk.to_string().hex(),'client1',100).to_json()
     txn3 = Transaction(vk2.to_string().hex(),'client3',100).to_json()
     txn4 = Transaction(vk2.to_string().hex(),'client4',100).to_json()
-    transactionlist = [txn1,txn2,txn3]
+    transactionlist = [txn1,txn2,txn2,txn1,txn1,txn1,txn3]
 
     ##Create Block with transaction
     block = Block(transactionlist)
@@ -69,7 +69,7 @@ def test():
     # print (chain.blockchain)
     
     spvclient = SPVClient()
-    checktransaction = spvclient.receive_transaction(txn2,m1)
+    checktransaction = spvclient.receive_transaction(txn3,m1)
 
 if __name__ == '__main__':
     test() 

@@ -18,10 +18,15 @@ class MerkleTree():
         proof = []
         level = 0
         tree = self.tree
-        currentIndex = self.transactionlist.index(hashedtxn)
+        currentIndex = self.transactionlist.index(hashedtxn)    
         
         while level < len(tree)-1:
             if level == 0:
+                print (len(tree[level]))
+                if len(tree[level])%2 != 0:
+                    print ("lastval: ",tree[level][-1])
+                    tree[level].append(tree[level][-1])
+
                 if currentIndex == 0:
                     hashvalue = tree[level][1]
                     proof.append({'right':hashvalue})
@@ -38,6 +43,9 @@ class MerkleTree():
             else:
                 hashIndex = int(currentIndex/2)
                 
+                if len(tree[level])%2 != 0:
+                    tree[level].append(tree[level][-1])
+
                 if hashIndex == 0:
                     hashvalue = tree[level][1]
                     proof.append({'right':hashvalue})
@@ -120,7 +128,7 @@ class MerkleTree():
                 tree.append(current_level)
             else:
                 ##if odd, take last node and hash with itself
-                #print ("test oddloop")
+               
                 for i in range(0,len(current_level)-2,2):
                     #Hash up till last node
                     combined_tohash = str(current_level[i]) + str(current_level[i+1])
