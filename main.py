@@ -4,6 +4,7 @@ from ecdsa import SigningKey, NIST192p
 from merkletree import MerkleTree
 from miner import Miner
 from client import SPVClient
+import threading, time
 
 def test():
     ## Generate Key
@@ -41,9 +42,9 @@ def test():
         chain.set_blockheader(block)
         chain.add(block,1)
     
-    txn4 = Transaction('receiverkey1','receiverkey3', 100).to_json()
+
+       txn4 = Transaction('receiverkey1','receiverkey3', 100).to_json()
     txn5 = Transaction('receiverkey3','receiverkey1', 100).to_json()
-   
     chain.transactionpool.append(txn4)
     chain.transactionpool.append(txn5)
 
@@ -61,6 +62,8 @@ def test():
     newtxn = spvclient.new_txn(m1.publickey.to_string().hex(),100)
     nt = m1.new_txn(spvclient.publickey.to_string().hex(),100)
     print (nt)
+
+    
 
 if __name__ == '__main__':
     test() 
