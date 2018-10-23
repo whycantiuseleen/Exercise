@@ -6,7 +6,7 @@ from ecdsa import SigningKey, NIST192p
 import json
 from selfish_miner import SelfishMiner
 
-class Miner:
+class DoubleSpender:
     def __init__(self, blockchain):
         self.blockchain = blockchain
 
@@ -76,41 +76,41 @@ class Miner:
 
         return verifiedpool
 
-    def txn_and_mine(self, recipient, amount):
+    def new_txn(self, recipient, amount):
         self.getAddrBalance(self.blockchain)
         senderkey = self.publickey.to_string().hex()
         balance = self.addr.get(senderkey)
         if balance > 0:
             newTxn = Transaction(senderkey, recipient, amount)
-            signedTxn = newTxn.sign(newTxn, self.privatekey.to_string())
+            # signedTxn = newTxn.sign(newTxn, self.privatekey.to_string())
             self.blockchain.transactionpool.append(newTxn.to_json)
             #after spend immediately mine
-            first_block = self.mine(self.blockchain)
+            # first_block = self.mine(self.blockchain)
             print ("\nMiner "+str(senderkey)+" Added Transaction to transaction pool \n", self.blockchain.transactionpool)
         else:
             print ('\nMiner '+str(senderkey)+" does not have sufficient coins to send a transaction")
-        return first_block
+        return newTxn
 
     def attack(self, chain):
-        public_chain = chain.blockchain
-        private_chain = chain.blockchain
+        public_chain = chain
+        private_chain = chain
 
-        first_block = self.txn_and_mine('receiver1', 10)
+        # first_block = self.txn_and_mine('receiver1', 10)
         #by right check network and resolve
         #but just append to my own public chain for now
-        public_chain.add(first_block, self.publickey)
+        # public_chain.add(first_block, self.publickey)
 
         #now make another txn and mine it too
-        second_block = self.txn_and_mine('receiver2', 12)
+        # second_block = self.txn_and_mine('receiver2', 12)
 
         #again just append to the private chain with out checking
-        private_chain.add(second_block, self.privatekey)
+        # private_chain.add(second_block, self.privatekey)
 
         #start growing my private chain and publish when it is longer than public chain
-        privateBlocks = SelfishMiner.selfish_mine(private_chain)
-
-        for i in range(len(privateBlocks)):
-            public_chain.add(privateBlocks[i], self.publickey)
+        # privateBlocks = SelfishMiner.selfish_mine(private_chain)
+        #
+        # for i in range(len(privateBlocks)):
+        #     public_chain.add(privateBlocks[i], self.publickey)
 
         print("Miner has performed a double attack")
         #check balance to show his attack

@@ -5,7 +5,6 @@ from miner import Miner
 from client import SPVClient
 from merkletree import MerkleTree
 
-threadId = 1
 timetaken = {}
 blockarray = []
 
