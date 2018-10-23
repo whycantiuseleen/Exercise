@@ -80,10 +80,10 @@ class Blockchain:
 
     def proof_of_work(self,block):
         while block.hash.hexdigest()[:4] != '0000':
-            block.proof += 1
+            block.nonce += 1
             block.hash_data()
 
-        print ("Validated proof: "+str(block.proof))
+        print ("Validated proof: "+str(block.nonce))
         return True
 
     @property
@@ -147,7 +147,7 @@ class Block:
         self.index = None
 
         # Set when block is created
-        self.proof = 0
+        self.nonce = 0
         self.merkle_root = self.build_tree()
         self.timestamp = time.time()
 
@@ -157,7 +157,7 @@ class Block:
 
     def hash_data(self):
         hashed = hashlib.sha256()
-        hashed.update(str(self.pre_hash).encode('utf-8')+str(self.timestamp).encode('utf-8')+str(self.proof).encode('utf-8')+str(self.merkle_root).encode('utf-8'))
+        hashed.update(str(self.pre_hash).encode('utf-8')+str(self.timestamp).encode('utf-8')+str(self.nonce).encode('utf-8')+str(self.merkle_root).encode('utf-8'))
         self.hash = hashed
         return hashed
 
@@ -176,6 +176,6 @@ class Block:
             "timestamp": self.timestamp,
             "prehash": self.pre_hash,
             "merkleroot": self.merkle_root,
-            "proof": self.proof
+            "nonce": self.nonce
         }
         return headerdict
