@@ -75,23 +75,7 @@ class Miner:
 
         return verifiedpool
 
-<<<<<<< HEAD
-    def new_txn(self, recipient, amount):
-        self.getAddrBalance(self.blockchain)
-        senderkey = self.publickey.to_string().hex()
-        balance = self.addr.get(senderkey)
-        if balance > 0:
-            newTxn = Transaction(senderkey, recipient, amount)
-            signedTxn = newTxn.sign(newTxn, self.privatekey.to_string())
-            self.blockchain.transactionpool.append(newTxn.to_json)
-            print ("\nMiner "+str(senderkey)+" Added Transaction to transaction pool \n", self.blockchain.transactionpool)
-        else:
-            print ('\nMiner '+str(senderkey)+" does not have sufficient coins to send a transaction")
-        return None
-
-=======
         
->>>>>>> bb827d35269d22c72cf4392389ceb432a93ac286
     def mine(self, currentchain):
         self.getAddrBalance(currentchain)
 
@@ -107,10 +91,6 @@ class Miner:
 
         proof = currentchain.proof_of_work(newblock)
         print ("\nMiner " + str(self.publickey.to_string().hex())+" found new block")
-<<<<<<< HEAD
-        return newblock, verifiedpool
-
-=======
         return newblock
 
 
@@ -125,7 +105,6 @@ class Miner:
         else:
             print ('\nMiner '+str(senderkey)+" does not have sufficient coins to send a transaction")
         return newTxn 
->>>>>>> bb827d35269d22c72cf4392389ceb432a93ac286
 
     def get_merklepath(self, txn):
         # Get Tree information from minernode

@@ -97,6 +97,7 @@ def consensus():
 
 @app.route('/transaction/verify', methods=['GET'])
 def verify_transaction():
+    
     pass
     # Proof of Existence
     # Receive transaction

@@ -34,6 +34,7 @@ def register_peers():
 @app.route('/mine',methods=['GET'])
 def mine_transaction():
     # Miner send msg to network saying that the miner is mining a new block
+    
     return "I am mining a new Block"
 
 @app.route('/transaction/new', methods=['POST'])
