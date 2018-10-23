@@ -11,6 +11,10 @@ app = Flask(__name__)
 node_id = str(uuid4()).replace('-','')
 
 blockchain = Blockchain()
+<<<<<<< HEAD
+=======
+m2 = Miner(blockchain)
+>>>>>>> network-and-attacks
 
 @app.route('/peers/register', methods = ['POST'])
 def register_peers():
@@ -34,6 +38,8 @@ def register_peers():
 @app.route('/mine',methods=['GET'])
 def mine_transaction():
     # Miner send msg to network saying that the miner is mining a new block
+<<<<<<< HEAD
+    
     return "I am mining a new Block"
 
 @app.route('/transaction/new', methods=['POST'])
@@ -47,6 +53,38 @@ def new_transaction():
     response = {'message':'Transaction successfully created'}
     return jsonify(response), 201
 
+=======
+    return "I am mining a new Block"
+
+# @app.route('/transaction/new', methods=['POST'])
+# def new_transaction():
+#     # Client make new transaction
+#     values = request.form
+#     required = ['amount', 'comment']
+#     if not all(k in values for k in required):
+#         return 'Missing values', 400
+#     txn = Miner.new_txn(values['receiver'], values['amount'])
+#     response = {'message':'Transaction successfully created'}
+#     return jsonify(response), 201
+
+@app.route('/transaction/new', methods=['POST'])
+def new_transaction():
+    # Client make new transaction
+    values = request.get_json()
+    print("getting values")
+    receiver = values.get('receiver')
+    amt = values.get('amount')
+    # required = ['receiver', 'amount']
+
+    # if not all(k in values for k in required):
+    #     return 'Missing values', 400
+
+    txn = m2.new_txn(receiver, amt)
+
+    response = {'message':'Transaction successfully created'}
+
+    return jsonify(response), 201
+>>>>>>> network-and-attacks
 @app.route('/transaction/history', methods=['GET'])
 def get_transaction_history():
     # Retrieve Transaction history
