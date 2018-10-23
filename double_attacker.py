@@ -47,6 +47,13 @@ class DoubleSpender:
         self.addr = addr
         return addr
 
+    def get_balance(self, chain, pk):
+        addr = self.getAddrBalance(chain)
+        account_keys = list(addr.keys)
+        for k in account_keys:
+            if k == pk:
+                return addr[k]
+
     def check_transactions(self,transactionpool):
         # Check Signature
         # Check if the sender has enough coins to send
@@ -55,6 +62,7 @@ class DoubleSpender:
         accountlist = list(addrbk_checked.keys())
         for transaction in transactionpool:
             # Cost of transaction
+            print(transaction)
             pool_data = json.loads(transaction)
             cost = pool_data['amount']
             sender = pool_data['sender']
@@ -83,13 +91,13 @@ class DoubleSpender:
         if balance > 0:
             newTxn = Transaction(senderkey, recipient, amount)
             # signedTxn = newTxn.sign(newTxn, self.privatekey.to_string())
-            self.blockchain.transactionpool.append(newTxn.to_json)
+            self.blockchain.transactionpool.append(newTxn.to_json())
             #after spend immediately mine
             # first_block = self.mine(self.blockchain)
             print ("\nMiner "+str(senderkey)+" Added Transaction to transaction pool \n", self.blockchain.transactionpool)
         else:
             print ('\nMiner '+str(senderkey)+" does not have sufficient coins to send a transaction")
-        return newTxn
+        return newTxn.to_json()
 
     def attack(self, chain):
         public_chain = chain

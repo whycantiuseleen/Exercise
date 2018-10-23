@@ -77,13 +77,17 @@ def test():
     m4 = DoubleSpender(chain)
 
     txnToDS = m2.new_txn(m4.publickey.to_string().hex(), 60)
-    chain.transactionpool.append(txnToDS)
+
+    print("this is 1: ",chain.transactionpool)
     dsBlock = m4.mine(chain)
     chain.add(dsBlock, m4.publickey.to_string().hex())
 
     firsttxn = m4.new_txn(m1.publickey.to_string().hex(), 20)
-    chain.transactionpool.append(firsttxn)
-    print(chain.transactionpool)
+    print("txn fmt: ",firsttxn)
+    print("gvbn: ",chain.transactionpool)
+    publicBlk = m4.mine(chain)
+    print(publicBlk)
+    # print(chain.transactionpool)
     # m4.attack(chain)
 
 if __name__ == '__main__':
