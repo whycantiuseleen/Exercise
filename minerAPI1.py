@@ -43,12 +43,12 @@ def get_chain():
 @app.route('/mine',methods=['GET'])
 def mine_transaction():
     new_block, txns = m1.mine(blockchain)
+    new_block = m1.mine(blockchain)
     blockHeader = new_block.get_header()
     # Miner send msg to network saying that the miner is mining a new block
     response = {
             'message': "New Block Forged",
             'block_index': blockHeader['index'],
-            'transactions': txns,
             'nonce': block['nonce'],
             'previous_hash': blockHeader['prehash'],
         }
@@ -57,27 +57,20 @@ def mine_transaction():
 @app.route('/transaction/new', methods=['POST'])
 def new_transaction():
     # Client make new transaction
-    values = request.form
+    values = request.get_json()
+    # print("getting values")
+    # receiver = values.get('receiver')
+    # amt = values.get('amount')
     required = ['receiver', 'amount']
 
-    # if not all(k in values for k in required):
-    #     return 'Missing values', 400
+    if not all(k in values for k in required):
+        return 'Missing values', 400
 
     txn = m1.new_txn(values['receiver'], values['amount'])
 
     response = {'message':'Transaction successfully created'}
 
     return jsonify(response), 201
-
-# @app.route('/transaction/history', methods=['GET'])
-# def get_transaction_history():
-#     # Retrieve Transaction history
-#     # Blockchain, Header
-#     response = {
-#         'blockchain':blockchain.blockchain,
-#         'header':len(blockchain.blockchain)
-#     }
-#     return make_response(jsonify(response),201)
 
 @app.route('/peers/resolve', methods=['GET'])
 def consensus():
@@ -95,19 +88,12 @@ def consensus():
         }
     return jsonify(response), 200
 
-@app.route('/transaction/verify', methods=['GET'])
-def verify_transaction():
-    
-    pass
-    # Proof of Existence
-    # Receive transaction
-
 if __name__ == '__main__':
-    # from argparse import ArgumentParser
-    #
-    # parser = ArgumentParser()
-    # parser.add_argument('-p', '--port', default=8000, type=int, help='port to listen on')
-    # args = parser.parse_args()
-    # port = args.port
+    from argparse import ArgumentParser
 
-    app.run(host="localhost", port=5000, debug=True)
+    parser = ArgumentParser()
+    parser.add_argument('-p', '--port', default=5000, type=int, help='port to listen on')
+    args = parser.parse_args()
+    port = args.port
+
+    app.run(host="localhost", port=port, debug=True)
