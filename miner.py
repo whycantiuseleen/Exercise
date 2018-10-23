@@ -87,7 +87,7 @@ class Miner:
         else:
             print ('\nMiner '+str(senderkey)+" does not have sufficient coins to send a transaction")
         return None
-        
+
     def mine(self, currentchain):
         self.getAddrBalance(currentchain)
 
@@ -103,9 +103,7 @@ class Miner:
 
         proof = currentchain.proof_of_work(newblock)
         print ("\nMiner " + str(self.publickey.to_string().hex())+" found new block")
-        return newblock
-
-
+        return newblock, verifiedpool
 
 
     def get_merklepath(self, txn):
