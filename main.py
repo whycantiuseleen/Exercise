@@ -4,6 +4,8 @@ from ecdsa import SigningKey, NIST192p
 from merkletree import MerkleTree
 from miner import Miner
 from client import SPVClient
+from selfish_miner import SelfishMiner
+from double_attacker import DoubleSpender
 
 def test():
     ## Generate Key
@@ -40,10 +42,10 @@ def test():
     for i in range(2):
         chain.set_blockheader(block)
         chain.add(block,1)
-    
+
     txn4 = Transaction('receiverkey1','receiverkey3', 100).to_json()
     txn5 = Transaction('receiverkey3','receiverkey1', 100).to_json()
-   
+
     chain.transactionpool.append(txn4)
     chain.transactionpool.append(txn5)
 
@@ -60,7 +62,29 @@ def test():
     checktransaction = spvclient.receive_transaction(txn3,m1)
     newtxn = spvclient.new_txn(m1.publickey.to_string().hex(),100)
     nt = m1.new_txn(spvclient.publickey.to_string().hex(),100)
-    print (nt)
+
+    # print (nt)
+    miners_list = [m1, m2]
+    #selfish mine test
+    m3 = SelfishMiner(chain)
+    miners_list.append(m3)
+    for miner in miners_list:
+        block = miner.mine(chain)
+        chain.add(block, miner.publickey.to_string().hex())
+
+    # selfish_blocks = m3.selfish_mine(chain)
+    # print(selfish_blocks)
+    m4 = DoubleSpender(chain)
+
+    txnToDS = m2.new_txn(m4.publickey.to_string().hex(), 60)
+    chain.transactionpool.append(txnToDS)
+    dsBlock = m4.mine(chain)
+    chain.add(dsBlock, m4.publickey.to_string().hex())
+
+    firsttxn = m4.new_txn(m1.publickey.to_string().hex(), 20)
+    chain.transactionpool.append(firsttxn)
+    print(chain.transactionpool)
+    # m4.attack(chain)
 
 if __name__ == '__main__':
-    test() 
+    test()

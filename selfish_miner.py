@@ -78,7 +78,7 @@ class SelfishMiner:
     def foundByMe(self, chain):
         peers = chain.peers
         longest_chain = None
-        currentLen = len(chain) + 1 #seeing if this new found block makes my pub chain longest
+        currentLen = len(chain.blockchain) + 1 #seeing if this new found block makes my pub chain longest
 
         for node in peers:
             print('http://' + node + '/chain')
@@ -99,21 +99,23 @@ class SelfishMiner:
 
         return False
 
-    def mine(self):
+    def mine(self, chain):
         self.getAddrBalance()
 
         # Blockchain obj
-        currentchain = self.blockchain
-        transactionpool = currentchain.transactionpool
+        # currentchain = chain
+        transactionpool = chain.transactionpool
+        # print("chain pool", chain.transactionpool)
+
         # Check Transactions
         verifiedpool = self.check_transactions(transactionpool)
 
-        print ("\nMining Transaction, current number of block is: "+ str(len(currentchain.blockchain)))
+        print ("\nMining Transaction, current number of block is: "+ str(len(chain.blockchain)))
         # Create block object
         newblock = Block(verifiedpool)
-        currentchain.set_blockheader(newblock)
+        chain.set_blockheader(newblock)
 
-        proof = currentchain.proof_of_work(newblock)
+        proof = chain.proof_of_work(newblock)
         print ("\nMiner " + str(self.publickey.to_string().hex())+" found new block")
         return newblock
 
@@ -126,9 +128,9 @@ class SelfishMiner:
         lenDiff = 0
 
         private_blocks = []
-        public_chain = chain.blockchain
-        private_chain = chain.blockchain
-
+        public_chain = chain
+        private_chain = chain
+        # print("this is priv chain", private_chain.transactionpool)
         # #start mining normally
         # txn_pool = private_chain.transactionpool
         # #verify txns
@@ -140,136 +142,43 @@ class SelfishMiner:
 #######below is following the selfish mining algo. Please help check if its correct
 
         #if mine is actually longest aft checking
-        if foundByMe(private_chain):
-            lenDiff = len(private_chain) - len(public_chain)
-            private_chain.append([new_block])
+        if self.foundByMe(private_chain):
+            lenDiff = len(private_chain.blockchain) - len(public_chain.blockchain)
+            private_chain.add(new_block, self.publickey.to_string().hex())
             privateBlockLen += 1
             private_blocks.append(new_block)
 #need publich/ braodcast?
             if lenDiff == 0 and privateBlockLen == 2:
                 for i in range(len(private_blocks)):
                     #publish to the public chain?
-                    public_chain.append(private_blocks[i])
+                    public_chain.add(private_blocks[i], self.publickey.to_string().hex())
                 privateBlockLen = 0
             another_block = self.mine(private_chain)
         else:
-            lenDiff = len(private_chain) - len(public_chain)
-            public_chain.append(new_block)
+            lenDiff = len(private_chain.blockchain) - len(public_chain.blockchain)
+            public_chain.add(new_block, self.publickey.to_string().hex())
             if lenDiff == 0:
                 private_chain = public_chain
                 privateBlockLen = 0
             elif lenDiff == 1:
-                public_chain.append(private_chain[len(private_chain)-1])
+                public_chain.append(private_chain[len(private_chain.blockchain)-1])
             elif lenDiff == 2:
                 for i in range(len(private_blocks)):
                     #publish to the public chain?
-                    public_chain.append(private_blocks[i])
+                    public_chain.add(private_blocks[i], self.publickey.to_string().hex())
                 privateBlockLen = 0
             else:
-                public_chain.append(private_blocks[0])
+                public_chain.add(private_blocks[0], self.publickey.to_string().hex())
 
             another_block = self.mine(private_chain)
 
         return private_blocks
 
-        #A round begin when the state=0 and finish when we return to it
-        # for i in range(N_events):
-        #     r = random.random()
-        #
-        #     if state==0:
-        #         #Initial State.
-        #         #The selfish miners have 0 hidden block.
-        #         if r<=alpha:
-        #             #The selfish miners found a block.
-        #             #They don't publish it.
-        #             print('1st round')
-        #             state=1
-        #         else:
-        #             #The honest miners found a block.
-        #             #The round is finished : the honest miners found 1 block
-        #             # and the selfish miners found 0 block.
-        #             LongestChainLength+=1
-        #             state=0
-        #             print('no happy')
-        #
-        #     elif state==1:
-        #         #There is one hidden block in the pocket of the selfish miners.
-        #         if r<=alpha:
-        #             #The selfish miners found a new block.
-        #             #It remains hidden.
-        #             #The selfish miners are now two blocks ahead.
-        #             #The two blocks are hidden.
-        #             state=2
-        #             n=2
-        #             print('2nd round')
-        #         else:
-        #             state=-1
-        #
-        #     elif state==-1:
-        #         #It's the state 0' in the paper of Eyal and Gun Sirer
-        #         #The honest miners found a block.
-        #         #So the selfish miners publish their hidden block.
-        #         #The blockchain is forked with one block in each fork.
-        #         if r<=alpha:
-        #             #the selfish miners found a block in their fork.
-        #             #The round is finished : Selfish miners won 2 blocks and the honest miners 0.
-        #             NumberOfSelfishMineBlock+=2
-        #             LongestChainLength+=2
-        #             state=0
-        #             print('1st round again')
-        #         elif r<=alpha+(1-alpha)*gamma:
-        #             #The honest miners found a block in the fork of the selfish miners.
-        #             #The round is finished : Selfish miners won 1 blocks and the honest miners 1.
-        #             NumberOfSelfishMineBlock+=1
-        #             LongestChainLength+=2
-        #             state=0
-        #             print('1st round weww')
-        #         else:
-        #             #The honest miners found a block in their fork.
-        #             #The round is finished : Selfish miners won 0 blocks and the honest miners 2.
-        #             NumberOfSelfishMineBlock+=0
-        #             LongestChainLength+=2
-        #             state=0
-        #             print('1st round oops')
-        #
-        #     elif state==2:
-        #         #The selfish miners have 2 hidden blocks in their pocket.
-        #         if r<=alpha:
-        #             #The selfish miners found a new hidden block
-        #             n+=1
-        #             state=3 #can already set state = 0
-        #             print('hahaha')
-        #         else:
-        #             #The honest miners found a block.
-        #             #The selfish miners are only one block ahead of the honest miners,
-        #             #So they publish their chain which is of length n.
-        #             #The round is finished : Selfish miners won n blocks and the honest miners 0.
-        #             LongestChainLength+=n
-        #             NumberOfSelfishMineBlock+=n
-        #             state=0
-        #             print('ok enuf')
-        #     elif state>2:
-        #         if r<=alpha:
-        #             #The selfish miners found a new hidden block
-        #             n+=1
-        #             state += 1 #or state=0, SM broadcast his 2 blocks ahead, round finished
-        #             print('woww')
-        #         else:
-        #             #The honest miners found a block
-        #             #The selfish miners publish one of their hidden block
-        #             # and are losing one point in the run.
-        #             state -= 1
-        #             print('uhohh')
-
-                    #proportion of blocks selfishly mined and its length
-        #return float(NumberOfSelfishMineBlock)/LongestChainLength, NumberOfSelfishMineBlock, LongestChainLength-NumberOfSelfishMineBlock, state
-
-
     def new_txn(self, recipient, amount, comment):
         if self.balance > 0:
             senderkey = self.publickey
             newTxn = Transaction(senderkey.to_string().hex(), recipient, amount,comment)
-            signedTxn = newTxn.sign(newTxn, self.privatekey.to_string())
+            # signedTxn = newTxn.sign(newTxn, self.privatekey.to_string())
             self.blockchain.transactionpool.append(newTxn.to_json)
 
             print ("\nMiner "+str(self.publickey.to_string().hex())+" Added Transaction to transaction pool \n", self.blockchain.transactionpool)

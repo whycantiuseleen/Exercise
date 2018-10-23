@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 
 
 class Blockchain:
+
     def __init__(self):
         self.blockchain = []
         self.transactionpool = []
@@ -18,6 +19,8 @@ class Blockchain:
         self.genesis = self.create_first_block()
 
         self.peers = set()
+
+        self.TARGET = 4
 
     def register_peer(self, addr):
         #add peer to list of peers
