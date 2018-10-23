@@ -1,4 +1,4 @@
-import threading, time
+import threading, time, json
 from blockchain import Block, Blockchain
 from transaction import Transaction
 from miner import Miner
@@ -8,32 +8,28 @@ from merkletree import MerkleTree
 timetaken = {}
 blockarray = []
 
-def initializechain():
-    chain = Blockchain()
-    client1 = SPVClient()
-    client2 = SPVClient()
-    client3 = SPVClient()
+client1 = SPVClient()
+client2 = SPVClient()
+client3 = SPVClient()
 
+def initializechain():
+    global txn4
+    chain = Blockchain()
+    
     txn4 = Transaction('ServerReward',client1.publickey.to_string().hex(),100).to_json()
     block = Block([txn4])
     chain.set_blockheader(block)
     chain.add(block,1)
 
-    txn1 = client1.new_txn(client2.publickey.to_string().hex(),100)
-    txn2 = client2.new_txn(client1.publickey.to_string().hex(),100)
-    txn3 = client2.new_txn(client3.publickey.to_string().hex(),100)
-    chain.transactionpool.append(txn1)
-    chain.transactionpool.append(txn2)
-    chain.transactionpool.append(txn3)
     chain.transactionpool.append(txn4)
 
     return chain
 
-def mine(minerid):
-    global chain
+def mine(mineride, chain):
     global timetaken
     global blockarray
-    chain = initializechain()
+    global miner
+    
     miner = Miner(chain)
     minerID = miner.publickey.to_string().hex()
     print ("Miner " +str(minerID)+" mining")
@@ -45,7 +41,9 @@ def mine(minerid):
 
     return block
 
-def addblock():
+def addblock(chain):
+    global blocktoadd
+    global minerpk
     miners = list(timetaken.keys())
     timeElapsed = list(timetaken.values())
 
@@ -64,17 +62,45 @@ def addblock():
 
     return chain
 
+def newtransaction(chain):
+   
+    txn1 = client1.new_txn(client2.publickey.to_string().hex(),100)
+    txn2 = client2.new_txn(client1.publickey.to_string().hex(),100)
+    txn3 = client2.new_txn(client3.publickey.to_string().hex(),100)
+    chain.transactionpool.append(txn1)
+    chain.transactionpool.append(txn2)
+    chain.transactionpool.append(txn3)
+
+    return chain.transactionpool
+
+
 def main():
-    miner = []
+    chain = initializechain()
+    minerarray = []
+    # 1st Concurrent Mining
     for i in range(3):
-        thread = threading.Thread(target=mine, args=(i,))
-        miner.append(thread)
+        thread = threading.Thread(target=mine, args=(i,chain))
+        minerarray.append(thread)
         thread.start()
 
-    for thread in miner:
+    for thread in minerarray:
         thread.join()
         
-    addblock()
+    addblock(chain)
+    newtransaction(chain)
+    # Mine new transactions mades
+    print ("Second round of mining")
+    for i in range(3):
+        thread = threading.Thread(target=mine, args=(i,chain))
+        minerarray.append(thread)
+        thread.start()
 
+    for thread in minerarray:
+        thread.join()
+
+    addblock(chain)
+
+    # Verify if transaction is in blockchain
+    client1.receive_transaction(txn4,miner)
 
 main()

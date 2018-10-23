@@ -114,3 +114,5 @@ class Miner:
                 proof = merkletree.get_proof(txn)
 
         return proof
+
+  
