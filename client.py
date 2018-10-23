@@ -7,7 +7,7 @@ import hashlib,json
 
 
 class SPVClient:
-    def __init__(self):
+    def __init__(self,):
         # create key pair/generate wallet for client
         self.privatekey = SigningKey.generate(curve=NIST192p)
         self.publickey = self.privatekey.get_verifying_key()
@@ -16,12 +16,11 @@ class SPVClient:
         # Make txn, don't need to check if the balance is correct cos miner will check when they mine
         senderkey = self.publickey.to_string().hex()
        
-        newTxn = Transaction(senderkey, recipient, amount)
-        signedTxn = newTxn.sign(newTxn, self.privatekey.to_string())
-        self.blockchain.transactionpool.append(newTxn.to_json)
-        print ("\nClient "+str(senderkey)+" Added Transaction to transaction pool \n", self.blockchain.transactionpool)
+        newTxn = Transaction(senderkey, recipient, amount).to_json()
+        # signedTxn = newTxn.sign(newTxn.to_json, self.privatekey.to_string())
         
-        return signedTxn 
+        print ("\nClient "+str(senderkey)+" Added Transaction to transaction pool \n")
+        return newTxn
 
     def retrieve_block_headers(self, provider):
         blockheaders = []

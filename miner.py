@@ -98,13 +98,12 @@ class Miner:
         senderkey = self.publickey.to_string().hex()
         balance = self.addr.get(senderkey)
         if balance > 0:
-            newTxn = Transaction(senderkey, recipient, amount)
-            signedTxn = newTxn.sign(newTxn, self.privatekey.to_string())
-            self.blockchain.transactionpool.append(newTxn.to_json)
+            newTxn = Transaction(senderkey, recipient, amount).to_json()
+            self.blockchain.transactionpool.append(newTxn)
             print ("\nMiner "+str(senderkey)+" Added Transaction to transaction pool \n", self.blockchain.transactionpool)
         else:
             print ('\nMiner '+str(senderkey)+" does not have sufficient coins to send a transaction")
-        return None 
+        return newTxn 
 
     def get_merklepath(self, txn):
         # Get Tree information from minernode
