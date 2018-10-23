@@ -58,7 +58,7 @@ def mine_transaction():
 def new_transaction():
     # Client make new transaction
     values = request.get_json()
-    
+
     required = ['receiver', 'amount']
 
     if not all(k in values for k in required):

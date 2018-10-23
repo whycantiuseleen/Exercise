@@ -49,8 +49,8 @@ class DoubleSpender:
 
     def get_balance(self, chain, pk):
         addr = self.getAddrBalance(chain)
-        account_keys = list(addr.keys)
-        for k in account_keys:
+        # account_keys = list(addr.keys)
+        for k in addr.keys():
             if k == pk:
                 return addr[k]
 
@@ -101,27 +101,30 @@ class DoubleSpender:
 
     def attack(self, chain):
         public_chain = chain
+
+        #fork current chain status to his private chain
         private_chain = chain
 
-        # first_block = self.txn_and_mine('receiver1', 10)
-        #by right check network and resolve
-        #but just append to my own public chain for now
-        # public_chain.add(first_block, self.publickey)
+        #first txn to a random merchant
+        first_txn= self.new_txn('receiver1', 10)
+        #he mines the block with that txn
+        publicBlock = self.mine(public_chain)
+        #update nomrally to the public version of the chain
+        public_chain.add(publicBlock, self.publickey.to_string().hex())
 
-        #now make another txn and mine it too
-        # second_block = self.txn_and_mine('receiver2', 12)
+        #make second txn to another since first one is approved
+        second_txn = self.new_txn('receiver2', 10)
+        privBlock = self.mine(private_chain)
+        private_chain.add(privBlock, self.publickey.to_string().hex())
 
-        #again just append to the private chain with out checking
-        # private_chain.add(second_block, self.privatekey)
+        # start growing his private chain using selfish mining
+        privateBlocks = SelfishMiner.selfish_mine(self, private_chain)
 
-        #start growing my private chain and publish when it is longer than public chain
-        # privateBlocks = SelfishMiner.selfish_mine(private_chain)
-        #
-        # for i in range(len(privateBlocks)):
-        #     public_chain.add(privateBlocks[i], self.publickey)
+        # publish his work when its longer
+        for i in range(len(privateBlocks)):
+            public_chain.add(privateBlocks[i], self.publickey.to_string().hex())
 
-        print("Miner has performed a double attack")
-        #check balance to show his attack
+        print("Miner has performed a double attack\n")
 
     def mine(self, currentchain):
         self.getAddrBalance(currentchain)

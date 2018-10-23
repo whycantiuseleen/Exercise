@@ -15,7 +15,7 @@ client3 = SPVClient()
 def initializechain():
     global txn4
     chain = Blockchain()
-    
+
     txn4 = Transaction('ServerReward',client1.publickey.to_string().hex(),100).to_json()
     block = Block([txn4])
     chain.set_blockheader(block)
@@ -29,7 +29,7 @@ def mine(mineride, chain):
     global timetaken
     global blockarray
     global miner
-    
+
     miner = Miner(chain)
     minerID = miner.publickey.to_string().hex()
     print ("Miner " +str(minerID)+" mining")
@@ -51,7 +51,7 @@ def addblock(chain):
     for time in timeElapsed:
         if time < shortestTime:
             shortestTime = time
-    
+
     minerindex = timeElapsed.index(shortestTime)
     blocktoadd = blockarray[minerindex]
     minerpk = miners[minerindex]
@@ -63,7 +63,7 @@ def addblock(chain):
     return chain
 
 def newtransaction(chain):
-   
+
     txn1 = client1.new_txn(client2.publickey.to_string().hex(),100)
     txn2 = client2.new_txn(client1.publickey.to_string().hex(),100)
     txn3 = client2.new_txn(client3.publickey.to_string().hex(),100)
@@ -85,10 +85,10 @@ def main():
 
     for thread in minerarray:
         thread.join()
-        
+
     addblock(chain)
     newtransaction(chain)
-    # Mine new transactions mades
+    # Mine new transactions made
     print ("Second round of mining")
     for i in range(3):
         thread = threading.Thread(target=mine, args=(i,chain))

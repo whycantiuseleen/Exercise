@@ -75,6 +75,7 @@ class SelfishMiner:
 
         return verifiedpool
 
+        #this can be used to check when network is connected, simil;ar to resolve()
     def foundByMe(self, chain):
         peers = chain.peers
         longest_chain = None
@@ -102,8 +103,6 @@ class SelfishMiner:
     def mine(self, chain):
         self.getAddrBalance()
 
-        # Blockchain obj
-        # currentchain = chain
         transactionpool = chain.transactionpool
         # print("chain pool", chain.transactionpool)
 
@@ -120,29 +119,23 @@ class SelfishMiner:
         return newblock
 
     def selfish_mine(self, chain):
-        # state = 0
 
-        # publicLongestLen = 0
         #num of blocks mined privately
         privateBlockLen = 0
         lenDiff = 0
+        foundByMe = True #simplified, for demo's sake, otherwise need to run simulation/network to find out
 
         private_blocks = []
         public_chain = chain
         private_chain = chain
-        # print("this is priv chain", private_chain.transactionpool)
-        # #start mining normally
-        # txn_pool = private_chain.transactionpool
-        # #verify txns
-        # verified_txns = self.check_transaction(txn_pool)
-        #
-        # new_block = Block(verified_txns)
+
         new_block = self.mine(private_chain)
 
-#######below is following the selfish mining algo. Please help check if its correct
+        #below is following the selfish mining algo. The test correct or not
+        #depends on this
 
         #if mine is actually longest aft checking
-        if self.foundByMe(private_chain):
+        if foundByMe:
             lenDiff = len(private_chain.blockchain) - len(public_chain.blockchain)
             private_chain.add(new_block, self.publickey.to_string().hex())
             privateBlockLen += 1
@@ -184,4 +177,4 @@ class SelfishMiner:
             print ("\nMiner "+str(self.publickey.to_string().hex())+" Added Transaction to transaction pool \n", self.blockchain.transactionpool)
         else:
             print ('\nMiner '+str(self.publickey.to_string().hex())+" does not have any coin to send a transaction")
-        return None
+        return newTxn

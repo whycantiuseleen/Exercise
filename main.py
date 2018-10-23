@@ -63,34 +63,35 @@ def test():
     newtxn = spvclient.new_txn(m1.publickey.to_string().hex(),100)
     nt = m1.new_txn(spvclient.publickey.to_string().hex(),100)
 
-    # print (nt)
+    print (nt)
     miners_list = [m1, m2]
-    #selfish mine test
+
+    #####selfish mining attack####
     m3 = SelfishMiner(chain)
     miners_list.append(m3)
     for miner in miners_list:
         block = miner.mine(chain)
         chain.add(block, miner.publickey.to_string().hex())
 
-    # selfish_blocks = m3.selfish_mine(chain)
-    # print(selfish_blocks)
+    #trying to show the number of blocks mined by selfish miners
+    selfish_blocks = m3.selfish_mine(chain)
+    print("Selfish miner's work: ", selfish_blocks)
+
+    ###DOUBLE SPENDING attack###
     m4 = DoubleSpender(chain)
 
+    #first let m4 have some money
+    #m2 make txn to send 60 to m4
     txnToDS = m2.new_txn(m4.publickey.to_string().hex(), 60)
 
-    print("this is 1: ",chain.transactionpool)
+    #attacker mine the latest txn pool
     dsBlock = m4.mine(chain)
     chain.add(dsBlock, m4.publickey.to_string().hex())
+    print("Attacker's balance (before) is", m4.get_balance(chain, m4.publickey.to_string().hex()))
 
-    firsttxn = m4.new_txn(m1.publickey.to_string().hex(), 20)
-    print("txn fmt: ",firsttxn)
-    print("gvbn: ",chain.transactionpool)
-    publicBlk = m4.mine(chain)
-    print(publicBlk)
-    # print(chain.transactionpool)
-    # m4.attack(chain)
-
-    
+    #he then performs the attack
+    dsBlocks = m4.attack(chain)
+    print("Attacker's balance (after) is", m4.get_balance(chain, m4.publickey.to_string().hex()))
 
 if __name__ == '__main__':
     test()

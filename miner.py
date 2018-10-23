@@ -72,7 +72,13 @@ class Miner:
                     # print ("Transaction is valid\n")
         return verifiedpool
 
-        
+    def get_balance(self, chain, pk):
+        addr = self.getAddrBalance(chain)
+        # account_keys = list(addr.keys)
+        for k in addr.keys():
+            if k == pk:
+                return addr[k]
+                    
     def mine(self, currentchain):
         self.getAddrBalance(currentchain)
         # Blockchain obj
@@ -99,7 +105,7 @@ class Miner:
             print ("\nMiner "+str(senderkey)+" Added Transaction to transaction pool \n", self.blockchain.transactionpool)
         else:
             print ('\nMiner '+str(senderkey)+" does not have sufficient coins to send a transaction")
-        return newTxn 
+        return newTxn
 
     def get_merklepath(self, txn):
         # Get Tree information from minernode
@@ -114,5 +120,3 @@ class Miner:
                 proof = merkletree.get_proof(txn)
 
         return proof
-
-  
