@@ -12,14 +12,15 @@ def test():
     sk2 = SigningKey.generate(curve = NIST192p)
     vk2 = sk2.get_verifying_key()
 
-    # ## Create Transactions
-    # newTxn = Transaction(vk.to_string().hex(), 'receiverkey', 100)
-    # ## convert to JSON
-    # toJson = newTxn.to_json()
-    # ## Sign JSON
-    # signature = newTxn.sign(toJson, sk.to_string())
-    # ## Validate
-    # validated = newTxn.validate_signature(toJson, signature, vk.to_string())
+    ## Create Transactions
+    newTxn = Transaction(vk.to_string().hex(), 'receiverkey', 100)
+    ## convert to JSON
+    toJson = newTxn.to_json()
+    ## Sign JSON
+    signature = newTxn.sign(toJson, sk.to_string())
+    print (signature)
+    ## Validate
+    validated = newTxn.validate_signature(toJson, signature, vk.to_string())
 
     txn1 = Transaction(vk.to_string().hex(),'receiverkey1', 100).to_json()
     txn2 = Transaction(vk.to_string().hex(),'client1',100).to_json()
@@ -48,6 +49,7 @@ def test():
 
     # Miner Test
     m1 = Miner(chain)
+    m2 = Miner(chain)
     block4 = m1.mine(chain)
     chain.add(block4,m1.publickey.to_string().hex())
     block5 = m1.mine(chain)
@@ -56,7 +58,9 @@ def test():
     # SPV Test
     spvclient = SPVClient()
     checktransaction = spvclient.receive_transaction(txn3,m1)
-   
+    newtxn = spvclient.new_txn(m1.publickey.to_string().hex(),100)
+    nt = m1.new_txn(spvclient.publickey.to_string().hex(),100)
+    print (nt)
 
 if __name__ == '__main__':
     test() 
