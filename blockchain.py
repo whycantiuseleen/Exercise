@@ -47,65 +47,20 @@ class Blockchain:
 
     def add(self, block, minerpublickey):
         chain = self.blockchain
-<<<<<<< HEAD
         if self.validate_block(block) == True:
             chain.append([block])
             print ("Adding Block " + str(block.index) + " to the chain at " + str(block.timestamp))
             print ("Hashed Data:", block.hash.hexdigest())
             print ("Current Number of Block is " + str(len(self.blockchain)))
-=======
-
-        chain.append([block])
-        print ("Adding Block " + str(block.index) + " to the chain at " + str(block.timestamp))
-        print ("Hashed Data:", block.hash.hexdigest())
-        print ("Current Number of Block is " + str(len(self.blockchain)))
-
-        self.transactionpool = []
-
-        rewardtxn = Transaction("ServerReward", minerpublickey, 100).to_json()
-        self.transactionpool.append(rewardtxn)
-        print ("Rewarded Miner "+str(minerpublickey) + " with 100 SUTDcoin\n")
-        return chain
-
-    def fork(self,block1,block2,m1pk,m2pk):
-        # Forcing a fork
-        mainchain = self.blockchain
-        currentindex = block1.index
->>>>>>> network-and-attacks
 
             self.transactionpool = []
 
-<<<<<<< HEAD
             rewardtxn = Transaction("ServerReward", minerpublickey, 100).to_json()
             self.transactionpool.append(rewardtxn)
             print ("Rewarded Miner "+str(minerpublickey) + " with 100 SUTDcoin\n")
         else:
             print ("Block rejected")
         return chain
-=======
-        newchain2 = Blockchain()
-        block2.index = currentindex
-        newchain2.genesis = block2
-
-        mainchain.append([newchain1,newchain2])
-        print ("Forking occured at Block " + str(block1.index))
-        self.transactionpool = []
-
-        rewardtxn1 = Transaction("ServerReward", m1pk, 100).to_json()
-        rewardtxn2 = Transaction("ServerReward", m2pk, 100).to_json()
-
-        self.transactionpool.append(rewardtxn1)
-        self.transactionpool.append(rewardtxn2)
-        newchain1.transactionpool = self.transactionpool
-        newchain2.transactionpool = self.transactionpool
-
-        print ("Rewarded Miner "+str(m1pk) + " with 100 SUTDcoin\n")
-        print ("Rewarded Miner "+str(m2pk) + " with 100 SUTDcoin\n")
-        print (mainchain)
-
-        return mainchain
-
->>>>>>> network-and-attacks
 
     def create_first_block(self):
         if self.genesis_created == False:
@@ -128,11 +83,7 @@ class Blockchain:
             block.nonce += 1
             block.hash_data()
 
-<<<<<<< HEAD
         print ("Validated proof: "+str(block.nonce))
-=======
-        print ("Validated proof: "+str(block.proof))
->>>>>>> network-and-attacks
         return True
 
     @property
@@ -163,7 +114,6 @@ class Blockchain:
         return True
 
     def resolve(self):
-<<<<<<< HEAD
         peers = self.peers
         longest_chain = None
         currentLen = len(self.chain)
@@ -187,22 +137,6 @@ class Blockchain:
 
         return False
 
-=======
-        for tempblock in self.blockchain:
-            #check for where the fork is
-            if len(tempblock) != 1:
-                print ("Forking detected",tempblock)
-                for forkchain in tempblock:
-                    #check which chain is longer
-                    print (forkchain)
-                    current_longestchain = []
-                    if len(forkchain.blockchain) > len(current_longestchain):
-                        current_longestchain = forkchain
-                    print (current_longestchain)
-                    # self.blockchain[-1] = [current_longestchain]
-                    # print (self.blockchain)
-                    return current_longestchain
->>>>>>> network-and-attacks
 
 class Block:
     def __init__(self, txnlist):
