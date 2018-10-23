@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 class Blockchain:
 
     def __init__(self):
+        
         self.blockchain = []
         self.transactionpool = []
         self.currentindex = 0
@@ -82,7 +83,8 @@ class Blockchain:
         return self.genesis
 
     def proof_of_work(self,block):
-        while block.hash.hexdigest()[:4] != '0000':
+        target = 5
+        while block.hash.hexdigest()[:target] != '0'*target:
             block.nonce += 1
             block.hash_data()
 
@@ -166,8 +168,10 @@ class Block:
 
 
     def build_tree(self):
+        
         mt = MerkleTree(self.txnlist)
         buildtree= mt.build()
+        
         merkleroot = mt.get_root()
         self.merkle_root = merkleroot
 

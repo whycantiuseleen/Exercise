@@ -95,9 +95,9 @@ class MerkleTree():
         oddNum = False
         txnlist = self.transactionlist
 
-        #print ("list ",txnlist)
+        # print ("list ",txnlist)
         for transaction in txnlist:
-            #print (transaction)
+            # print ('test')
             hashed_data = hashlib.sha512(transaction.encode('utf-8')).hexdigest()
             leaf_hashes.append(hashed_data)
 
@@ -105,10 +105,10 @@ class MerkleTree():
     
         current_level = leaf_hashes
         nodes_remaining = len(current_level)
-        #print ("Currentlvl", current_level)
-
+        # print ("Currentlvl", current_level)
+        
         while nodes_remaining != 1:
-           # print ("testloop")
+            # print ("testloop")
             if len(current_level)%2 != 0:
                 oddNum = True
             else:
@@ -116,6 +116,7 @@ class MerkleTree():
 
             next_level = []
             if oddNum == False:
+                
                 for i in range(0,len(current_level)-1,2):
                     combined_tohash = str(current_level[i]) + str(current_level[i+1])
                     #print ("combined", combined_tohash)
@@ -146,7 +147,7 @@ class MerkleTree():
         # print ("Merkle tree generated: \n")
         # for i in tree:
         #     print (i)
-
+        
         
         self.tree = tree
         self.root = tree[-1][0]

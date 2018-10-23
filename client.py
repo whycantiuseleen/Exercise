@@ -19,7 +19,8 @@ class SPVClient:
         newTxn = Transaction(senderkey, recipient, amount).to_json()
         # signedTxn = newTxn.sign(newTxn.to_json, self.privatekey.to_string())
         
-        print ("\nClient "+str(senderkey)+" Added Transaction to transaction pool \n")
+        # print ("Client "+str(senderkey)+" Added Transaction to transaction pool \n")
+        # print (newTxn)
         return newTxn
 
     def retrieve_block_headers(self, provider):

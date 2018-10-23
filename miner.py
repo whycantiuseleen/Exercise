@@ -59,7 +59,6 @@ class Miner:
             sender = pool_data['sender']
             # Amt that sender has
             amt_onhand = addrbk_checked.get(sender)
-
             if sender not in accountlist:
                 # print (str(sender) + " not in account list, transaction rejected")
                 continue
@@ -71,20 +70,16 @@ class Miner:
                     addrbk_checked.update({pool_data['sender']:balance})
                     verifiedpool.append(transaction)
                     # print ("Transaction is valid\n")
-
-
         return verifiedpool
 
         
     def mine(self, currentchain):
         self.getAddrBalance(currentchain)
-
         # Blockchain obj
         transactionpool = currentchain.transactionpool
         # Check Transactions
         verifiedpool = self.check_transactions(transactionpool)
-
-        print ("\nMining Transaction, current number of block is: "+ str(len(currentchain.blockchain)))
+        # print ("\nMining Transaction, current number of block is: "+ str(len(currentchain.blockchain)))
         # Create block object
         newblock = Block(verifiedpool)
         currentchain.set_blockheader(newblock)
